@@ -6,6 +6,22 @@ edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+# don't need to do it exactly this way, following convention
+# happy to use package.name default here, so we don't specify
+# a name field
+path = "src/lib.rs"
+
+[[bin]]
+# double brackets because it's an array here -
+# can have multiple binaries if we want
+path = "src/main.rs"
+name = "app"
+
 [dependencies]
 actix-rt = "1.1.1"
 actix-web = "3.1.0"
+
+[dev-dependencies]
+reqwest = "0.10.8"
+tokio = "0.2.22"
