@@ -1,5 +1,5 @@
-use zero2prod::startup;
 use std::net::TcpListener;
+use zero2prod::startup;
 
 fn spawn_app() -> String {
     let listener = TcpListener::bind("127.0.0.1:0").expect("failed to bind to random open port");
@@ -11,7 +11,6 @@ fn spawn_app() -> String {
 
     format!("http://127.0.0.1:{}", port)
 }
-
 
 #[actix_rt::test]
 async fn health_check_works() {
@@ -56,7 +55,7 @@ async fn subscribe_returns_a_400_for_missing_data() {
     let test_cases = vec![
         ("name=col%20man", "missing the email"),
         ("email=colo%40col.com", "missing the name"),
-        ("", "missing both name and email")
+        ("", "missing both name and email"),
     ];
 
     for (invalid_body, error_message) in test_cases {
