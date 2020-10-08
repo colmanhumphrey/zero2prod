@@ -13,12 +13,17 @@ pub async fn subscribe(
     payload: web::Form<SubscribeRequest>,
     connection: web::Data<PgPool>,
 ) -> Result<HttpResponse, HttpResponse> {
+    let request_id = Uuid::new_v4();
     log::info!(
-        "Adding '{}' '{}' as a new subscriber,",
+        "request_id {} - Adding '{}' '{}' as a new subscriber,",
+        request_id,
         payload.email,
         payload.name
     );
-    log::info!("Saving new subscriber details in the db");
+    log::info!(
+        "request_id {} - Saving new subscriber details in the db",
+        request_id
+    );
     sqlx::query!(
         r#"
         INSERT INTO subscriptions (id, email, name, subscribed_at)
@@ -32,10 +37,17 @@ pub async fn subscribe(
     .execute(connection.get_ref())
     .await
     .map_err(|e| {
-        log::error!("Failed to execute query: {:?}", e);
+        log::error!(
+            "request_id {} - Failed to execute query: {:?}",
+            request_id,
+            e
+        );
         HttpResponse::InternalServerError().finish()
     })?;
-    log::info!("New subscriber details have been saved");
+    log::info!(
+        "request_id {} - New subscriber details have been saved",
+        request_id
+    );
 
     Ok(HttpResponse::Ok().finish())
 }
