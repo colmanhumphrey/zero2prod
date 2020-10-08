@@ -1,8 +1,8 @@
+use env_logger::Env;
 use sqlx::PgPool;
 use std::net::TcpListener;
 use zero2prod::configuration;
 use zero2prod::startup;
-use env_logger::Env;
 
 #[actix_rt::main]
 async fn main() -> Result<(), anyhow::Error> {
