@@ -1,19 +1,21 @@
-use env_logger::Env;
+// use env_logger::Env;
+use anyhow::Context;
 use sqlx::PgPool;
 use std::net::TcpListener;
-use zero2prod::configuration;
-use zero2prod::startup;
+use zero2prod::{configuration, startup, telemetry};
 
 #[actix_rt::main]
 async fn main() -> Result<(), anyhow::Error> {
-    env_logger::from_env(Env::default().default_filter_or("info")).init();
+    let subscriber = telemetry::get_subscriber("zero2prod".into(), "info".into());
+    telemetry::init_subscriber(subscriber);
 
     let configuration = configuration::get_configuration().expect("Failed to read configuration.");
 
     let address = format!("127.0.0.1:{}", configuration.application_port);
     let connection = PgPool::connect(&configuration.database.connection_string())
         .await
-        .expect("Failed to connect to Postgres.");
+        .map_err(anyhow::Error::from)
+        .with_context(|| "Failed to connect to Postgres.")?;
 
     let listener = TcpListener::bind(address)?;
     startup::run(listener, connection)?.await?;

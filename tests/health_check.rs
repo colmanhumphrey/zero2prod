@@ -1,7 +1,15 @@
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use std::net::TcpListener;
 use uuid::Uuid;
-use zero2prod::{configuration, startup};
+use zero2prod::{configuration, startup, telemetry};
+
+lazy_static::lazy_static! {
+    static ref TRACING: () = {
+        let filter = if std::env::var("TEST_LOG").is_ok() { "debug" } else { "" };
+        let subscriber = telemetry::get_subscriber("test".into(), filter.into());
+        telemetry::init_subscriber(subscriber);
+    };
+}
 
 pub struct TestApp {
     pub address: String,
@@ -9,8 +17,9 @@ pub struct TestApp {
 }
 
 async fn spawn_app() -> TestApp {
-    let listener = TcpListener::bind("127.0.0.1:0").expect("failed to bind to random open port");
+    lazy_static::initialize(&TRACING);
 
+    let listener = TcpListener::bind("127.0.0.1:0").expect("failed to bind to random open port");
     let port = listener.local_addr().unwrap().port();
     let address = format!("http://127.0.0.1:{}", port);
 
