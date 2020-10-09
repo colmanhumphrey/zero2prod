@@ -1,8 +1,8 @@
 use actix_web::{web, HttpResponse};
 use chrono::Utc;
 use sqlx::PgPool;
-use uuid::Uuid;
 use tracing_futures::Instrument;
+use uuid::Uuid;
 
 #[derive(serde::Deserialize)]
 pub struct SubscribeRequest {
@@ -23,9 +23,7 @@ pub async fn subscribe(
     );
     let _request_span_guard = request_span.enter();
 
-    let query_span = tracing::info_span!(
-        "Saving new subscriber details in the database"
-    );
+    let query_span = tracing::info_span!("Saving new subscriber details in the database");
 
     sqlx::query!(
         r#"
@@ -37,14 +35,11 @@ pub async fn subscribe(
         payload.name,
         Utc::now()
     )
-        .execute(pool.get_ref())
-        .instrument(query_span)
+    .execute(pool.get_ref())
+    .instrument(query_span)
     .await
     .map_err(|e| {
-        tracing::error!(
-            "Failed to execute query: {:?}",
-            e
-        );
+        tracing::error!("Failed to execute query: {:?}", e);
         HttpResponse::InternalServerError().finish()
     })?;
 
