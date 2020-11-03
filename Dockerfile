@@ -8,4 +8,4 @@ COPY . .
 ENV SQLX_OFFLINE true
 RUN cargo build --release
 
-ENTRYPOINT ["./target/release/zero2prod"]
+ENTRYPOINT ["./target/release/app"]
