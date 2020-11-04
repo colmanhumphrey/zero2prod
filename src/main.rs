@@ -1,5 +1,5 @@
 // use env_logger::Env;
-use sqlx::{postgres::PgPoolOptions, PgPool};
+use sqlx::postgres::PgPoolOptions;
 use std::net::TcpListener;
 use zero2prod::{configuration, startup, telemetry};
 
