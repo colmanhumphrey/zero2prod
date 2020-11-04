@@ -1,5 +1,5 @@
 // use env_logger::Env;
-use sqlx::{PgPool, postgres::PgPoolOptions};
+use sqlx::{postgres::PgPoolOptions, PgPool};
 use std::net::TcpListener;
 use zero2prod::{configuration, startup, telemetry};
 
@@ -12,8 +12,7 @@ async fn main() -> std::io::Result<()> {
 
     let address = format!(
         "{}:{}",
-        configuration.application.host,
-        configuration.application.port,
+        configuration.application.host, configuration.application.port,
     );
     let connection_pool = PgPoolOptions::new()
         .connect_timeout(std::time::Duration::from_secs(2))
