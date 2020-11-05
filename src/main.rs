@@ -1,4 +1,3 @@
-// use env_logger::Env;
 use sqlx::postgres::PgPoolOptions;
 use std::net::TcpListener;
 use zero2prod::{configuration, startup, telemetry};
@@ -16,11 +15,9 @@ async fn main() -> std::io::Result<()> {
     );
     let connection_pool = PgPoolOptions::new()
         .connect_timeout(std::time::Duration::from_secs(2))
-        .connect(&configuration.database.connection_string())
+        .connect_with(configuration.database.with_db())
         .await
         .expect("Failed to connect to postgres");
-    // .map_err(anyhow::Error::from)
-    // .with_context(|| "Failed to connect to Postgres.")?;
 
     let listener = TcpListener::bind(address)?;
     startup::run(listener, connection_pool)?.await?;
