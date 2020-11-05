@@ -41,6 +41,10 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
         config::File::from(configuration_directory.join(environment.as_str())).required(true),
     )?;
 
+    // add in settings from environmental variables
+    // with prefix of "APP", and "__" to separate
+    settings.merge(config::Environment::with_prefix("app").separator("__"))?;
+
     settings.try_into()
 }
 
