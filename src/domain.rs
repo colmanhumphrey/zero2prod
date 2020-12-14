@@ -39,7 +39,7 @@ impl SubscriberEmail {
             return Err(format!("{} is not a valid subscriber email.", s));
         }
 
-        if !s.contains("@") {
+        if !s.contains('@') {
             return Err(format!("{} is not a valid subscriber email.", s));
         }
 
