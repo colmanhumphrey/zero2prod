@@ -39,7 +39,7 @@ impl SubscriberEmail {
             return Err(format!("{} is not a valid subscriber email.", s));
         }
 
-        if !s.contains("@") {
+        if !s.contains('@') {
             return Err(format!("{} is not a valid subscriber email.", s));
         }
 
@@ -70,8 +70,8 @@ impl NewSubscriber {
 
 #[cfg(test)]
 mod tests {
-    use crate::domain::SubscriberName;
     use crate::domain::SubscriberEmail;
+    use crate::domain::SubscriberName;
     use claim::{assert_err, assert_ok};
 
     #[test]
