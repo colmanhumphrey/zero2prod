@@ -1,8 +1,8 @@
-use std::convert::TryInto;
 use crate::domain::{NewSubscriber, SubscriberEmail, SubscriberName};
 use actix_web::{web, HttpResponse};
 use chrono::Utc;
 use sqlx::PgPool;
+use std::convert::TryInto;
 use uuid::Uuid;
 use web::Form;
 
@@ -12,7 +12,7 @@ pub struct SubscribeRequest {
     name: String,
 }
 
-impl TryInto<NewSubscriber>  for SubscribeRequest {
+impl TryInto<NewSubscriber> for SubscribeRequest {
     type Error = String;
 
     fn try_into(self) -> Result<NewSubscriber, Self::Error> {
@@ -34,7 +34,9 @@ pub async fn subscribe(
     payload: Form<SubscribeRequest>,
     pool: web::Data<PgPool>,
 ) -> Result<HttpResponse, HttpResponse> {
-    let new_subscriber = payload.0.try_into()
+    let new_subscriber = payload
+        .0
+        .try_into()
         .map_err(|_| HttpResponse::BadRequest().finish())?;
 
     insert_subscriber(&pool, &new_subscriber)
