@@ -1,13 +1,25 @@
+use std::convert::TryInto;
 use crate::domain::{NewSubscriber, SubscriberEmail, SubscriberName};
 use actix_web::{web, HttpResponse};
 use chrono::Utc;
 use sqlx::PgPool;
 use uuid::Uuid;
+use web::Form;
 
 #[derive(serde::Deserialize)]
 pub struct SubscribeRequest {
     email: String,
     name: String,
+}
+
+impl TryInto<NewSubscriber>  for SubscribeRequest {
+    type Error = String;
+
+    fn try_into(self) -> Result<NewSubscriber, Self::Error> {
+        let name = SubscriberName::parse(self.name)?;
+        let email = SubscriberEmail::parse(self.email)?;
+        Ok(NewSubscriber { email, name })
+    }
 }
 
 #[tracing::instrument(
@@ -18,20 +30,12 @@ pub struct SubscribeRequest {
         name = %payload.name
     )
 )]
-
 pub async fn subscribe(
-    payload: web::Form<SubscribeRequest>,
+    payload: Form<SubscribeRequest>,
     pool: web::Data<PgPool>,
 ) -> Result<HttpResponse, HttpResponse> {
-    let sub_name =
-        SubscriberName::parse(payload.0.name).map_err(|_| HttpResponse::BadRequest().finish())?;
-    let sub_email =
-        SubscriberEmail::parse(payload.0.email).map_err(|_| HttpResponse::BadRequest().finish())?;
-
-    let new_subscriber = NewSubscriber {
-        email: sub_email,
-        name: sub_name,
-    };
+    let new_subscriber = payload.0.try_into()
+        .map_err(|_| HttpResponse::BadRequest().finish())?;
 
     insert_subscriber(&pool, &new_subscriber)
         .await
