@@ -16,3 +16,5 @@ Run:
 ```sh
 DATABASE_URL=<insert your DO db connection string> sqlx migrate run
 ```
+
+We can run `doctl apps list` to get running apps too.
