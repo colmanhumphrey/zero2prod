@@ -42,7 +42,7 @@ features = [ "runtime-actix-rustls", "macros", "postgres", "uuid", "chrono", "mi
 
 [dev-dependencies]
 reqwest = "0.10.10"
-tokio = "0.2.22"
+tokio = "1.0.1"
 lazy_static = "1.4.0"
 claim = "0.4.0"
 fake = "~2.3"
