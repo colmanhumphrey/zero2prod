@@ -1,7 +1,7 @@
+use crate::domain::SubscriberEmail;
 use serde_aux::field_attributes::deserialize_number_from_string;
 use sqlx::postgres::{PgConnectOptions, PgSslMode};
 use std::convert::{TryFrom, TryInto};
-use crate::domain::SubscriberEmail;
 
 #[derive(serde::Deserialize)]
 pub struct Settings {
@@ -14,7 +14,7 @@ pub struct Settings {
 pub struct EmailClientSettings {
     pub base_url: String,
     pub sender_email: String,
-    pub authorization_token: String
+    pub authorization_token: String,
 }
 
 impl EmailClientSettings {

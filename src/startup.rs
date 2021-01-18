@@ -1,5 +1,5 @@
-use crate::routes;
 use crate::email_client::EmailClient;
+use crate::routes;
 use actix_web::dev::Server;
 // use actix_web::middleware::Logger;
 use actix_web::{web, App, HttpServer};
@@ -10,7 +10,7 @@ use tracing_actix_web::TracingLogger;
 pub fn run(
     listener: TcpListener,
     db_pool: PgPool,
-    email_client: EmailClient
+    email_client: EmailClient,
 ) -> Result<Server, std::io::Error> {
     let db_pool = web::Data::new(db_pool);
     let email_client = web::Data::new(email_client);

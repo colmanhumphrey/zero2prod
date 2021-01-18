@@ -9,11 +9,7 @@ pub struct EmailClient {
 }
 
 impl EmailClient {
-    pub fn new(
-        base_url: String,
-        sender: SubscriberEmail,
-        authorization_token: String
-    ) -> Self {
+    pub fn new(base_url: String, sender: SubscriberEmail, authorization_token: String) -> Self {
         let http_client = Client::builder()
             .timeout(std::time::Duration::from_secs(10))
             .build()
@@ -22,7 +18,7 @@ impl EmailClient {
             http_client,
             base_url,
             sender,
-            authorization_token
+            authorization_token,
         }
     }
 
@@ -31,7 +27,7 @@ impl EmailClient {
         recipient: SubscriberEmail,
         subject: &str,
         html_content: &str,
-        text_content: &str
+        text_content: &str,
     ) -> Result<(), reqwest::Error> {
         let url = format!("{}/email", self.base_url);
         let request_body = SendEmailRequest {
@@ -41,8 +37,7 @@ impl EmailClient {
             html_body: html_content,
             text_body: text_content,
         };
-        self
-            .http_client
+        self.http_client
             .post(&url)
             .header("X-Postmark-Server-Token", &self.authorization_token)
             .json(&request_body)
@@ -67,20 +62,19 @@ struct SendEmailRequest<'a> {
 mod tests {
     use crate::domain::SubscriberEmail;
     use crate::email_client::EmailClient;
+    use claim::{assert_err, assert_ok};
     use fake::faker::internet::en::SafeEmail;
     use fake::faker::lorem::en::{Paragraph, Sentence};
     use fake::{Fake, Faker};
-    use wiremock::matchers::{header, header_exists, path, method, any};
-    use wiremock::{Mock, MockServer, ResponseTemplate, Request};
-    use claim::{assert_ok, assert_err};
+    use wiremock::matchers::{any, header, header_exists, method, path};
+    use wiremock::{Mock, MockServer, Request, ResponseTemplate};
 
     struct SendEmailBodyMatcher;
 
     impl wiremock::Match for SendEmailBodyMatcher {
         fn matches(&self, request: &Request) -> bool {
             // try to parse as JSON
-            let result: Result<serde_json::Value, _> =
-                serde_json::from_slice(&request.body);
+            let result: Result<serde_json::Value, _> = serde_json::from_slice(&request.body);
 
             if let Ok(body) = result {
                 // check for existence of mandatory fields
@@ -184,8 +178,7 @@ mod tests {
         let mock_server = MockServer::start().await;
         let email_client = email_client(mock_server.uri());
 
-        let response = ResponseTemplate::new(200)
-            .set_delay(std::time::Duration::from_secs(180));
+        let response = ResponseTemplate::new(200).set_delay(std::time::Duration::from_secs(180));
 
         Mock::given(any())
             .respond_with(response)
