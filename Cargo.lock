@@ -12,7 +12,7 @@ dependencies = [
  "futures-sink",
  "log",
  "pin-project 0.4.25",
- "tokio 0.2.22",
+ "tokio 0.2.24",
  "tokio-util 0.3.1",
 ]
 
@@ -117,7 +117,7 @@ dependencies = [
  "futures-channel",
  "futures-util",
  "smallvec",
- "tokio 0.2.22",
+ "tokio 0.2.24",
 ]
 
 [[package]]
@@ -1039,7 +1039,7 @@ dependencies = [
  "http",
  "indexmap",
  "slab",
- "tokio 0.2.22",
+ "tokio 0.2.24",
  "tokio-util 0.3.1",
  "tracing",
 ]
@@ -1198,7 +1198,7 @@ dependencies = [
  "itoa",
  "pin-project 0.4.25",
  "socket2",
- "tokio 0.2.22",
+ "tokio 0.2.24",
  "tower-service",
  "tracing",
  "want",
@@ -1239,7 +1239,7 @@ dependencies = [
  "hyper 0.13.8",
  "log",
  "rustls",
- "tokio 0.2.22",
+ "tokio 0.2.24",
  "tokio-rustls",
  "webpki",
 ]
@@ -1910,7 +1910,7 @@ dependencies = [
  "serde 1.0.118",
  "serde_json",
  "serde_urlencoded",
- "tokio 0.2.22",
+ "tokio 0.2.24",
  "tokio-rustls",
  "url",
  "wasm-bindgen",
@@ -2300,7 +2300,7 @@ dependencies = [
  "actix-rt",
  "actix-threadpool",
  "once_cell",
- "tokio 0.2.22",
+ "tokio 0.2.24",
  "tokio-rustls",
 ]
 
@@ -2505,9 +2505,9 @@ checksum = "cda74da7e1a664f795bb1f8a87ec406fb89a02522cf6e50620d016add6dbbf5c"
 
 [[package]]
 name = "tokio"
-version = "0.2.22"
+version = "0.2.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5d34ca54d84bf2b5b4d7d31e901a8464f7b60ac145a284fba25ceb801f2ddccd"
+checksum = "099837d3464c16a808060bb3f02263b412f6fafcb5d01c533d309985fbeebe48"
 dependencies = [
  "bytes 0.5.6",
  "fnv",
@@ -2542,9 +2542,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-macros"
-version = "0.2.5"
+version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f0c3acc6aa564495a0f2e1d59fab677cd7f81a19994cfc7f3ad0e64301560389"
+checksum = "e44da00bfc73a25f814cd8d7e57a68a5c31b74b3152a0a1d1f590c97ed06265a"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2559,7 +2559,7 @@ checksum = "e12831b255bcfa39dc0436b01e19fea231a37db570686c06ee72c423479f889a"
 dependencies = [
  "futures-core",
  "rustls",
- "tokio 0.2.22",
+ "tokio 0.2.24",
  "webpki",
 ]
 
@@ -2585,7 +2585,7 @@ dependencies = [
  "futures-sink",
  "log",
  "pin-project-lite 0.1.10",
- "tokio 0.2.22",
+ "tokio 0.2.24",
 ]
 
 [[package]]
@@ -2750,7 +2750,7 @@ dependencies = [
  "rand",
  "smallvec",
  "thiserror",
- "tokio 0.2.22",
+ "tokio 0.2.24",
  "url",
 ]
 
@@ -2770,7 +2770,7 @@ dependencies = [
  "resolv-conf",
  "smallvec",
  "thiserror",
- "tokio 0.2.22",
+ "tokio 0.2.24",
  "trust-dns-proto",
 ]
 
@@ -3127,7 +3127,7 @@ dependencies = [
  "serde-aux",
  "serde_json",
  "sqlx",
- "tokio 0.2.22",
+ "tokio 1.0.2",
  "tracing",
  "tracing-actix-web",
  "tracing-bunyan-formatter",
