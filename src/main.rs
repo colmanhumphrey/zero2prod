@@ -1,6 +1,6 @@
 use sqlx::postgres::PgPoolOptions;
 use std::net::TcpListener;
-use zero2prod::{configuration, startup, telemetry};
+use zero2prod::{configuration, email_client, startup, telemetry};
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
@@ -19,8 +19,18 @@ async fn main() -> std::io::Result<()> {
         .await
         .expect("Failed to connect to postgres");
 
+    let sender_email = configuration
+        .email_client
+        .sender()
+        .expect("invalid sender email address");
+    let email_client = email_client::EmailClient::new(
+        configuration.email_client.base_url,
+        sender_email,
+        configuration.email_client.authorization_token,
+    );
+
     let listener = TcpListener::bind(address)?;
-    startup::run(listener, connection_pool)?.await?;
+    startup::run(listener, connection_pool, email_client)?.await?;
 
     Ok(())
 }
