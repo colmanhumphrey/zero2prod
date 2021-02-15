@@ -2,7 +2,7 @@ use sqlx::postgres::PgPoolOptions;
 use std::net::TcpListener;
 use zero2prod::{configuration, email_client, startup, telemetry};
 
-#[actix_rt::main]
+#[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let subscriber = telemetry::get_subscriber("zero2prod".into(), "info".into());
     telemetry::init_subscriber(subscriber);
