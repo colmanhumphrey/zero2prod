@@ -1,5 +1,5 @@
 # Mise en place
-FROM rust:1.47 as planner
+FROM rust:1.50 as planner
 WORKDIR app
 RUN cargo install cargo-chef
 # this can invalid the cache from here onwards,
@@ -8,7 +8,7 @@ COPY . .
 RUN cargo chef prepare --recipe-path recipe.json
 
 # Cook
-FROM rust:1.47 as cacher
+FROM rust:1.50 as cacher
 WORKDIR app
 RUN cargo install cargo-chef
 COPY --from=planner /app/recipe.json recipe.json
@@ -16,7 +16,7 @@ RUN cargo chef cook --release --recipe-path recipe.json
 
 
 # Build
-FROM rust:1.47 as builder
+FROM rust:1.50 as builder
 MAINTAINER Colman Humphrey <colman@slight.dev>
 
 WORKDIR app
