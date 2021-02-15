@@ -18,3 +18,7 @@ DATABASE_URL=<insert your DO db connection string> sqlx migrate run
 ```
 
 We can run `doctl apps list` to get running apps too.
+
+## Rust
+
+- Install [cargo-audit](https://github.com/RustSec/cargo-audit), since we check that
