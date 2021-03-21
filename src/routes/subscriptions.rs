@@ -1,4 +1,5 @@
 use crate::domain::{NewSubscriber, SubscriberEmail, SubscriberName};
+use crate::email_client::EmailClient;
 use actix_web::{web, HttpResponse};
 use chrono::Utc;
 use sqlx::PgPool;
@@ -24,7 +25,7 @@ impl TryInto<NewSubscriber> for SubscribeRequest {
 
 #[tracing::instrument(
     name = "Adding a new subscriber",
-    skip(payload, pool),
+    skip(payload, pool, email_client),
     fields(
         email = %payload.email,
         name = %payload.name
@@ -33,6 +34,7 @@ impl TryInto<NewSubscriber> for SubscribeRequest {
 pub async fn subscribe(
     payload: Form<SubscribeRequest>,
     pool: web::Data<PgPool>,
+    email_client: web::Data<EmailClient>,
 ) -> Result<HttpResponse, HttpResponse> {
     let new_subscriber = payload
         .0
@@ -42,6 +44,15 @@ pub async fn subscribe(
     insert_subscriber(&pool, &new_subscriber)
         .await
         .map_err(|_| HttpResponse::InternalServerError().finish())?;
+
+    let _ = email_client
+        .send_email(
+            new_subscriber.email,
+            "Welcome!",
+            "Welcome to our newsletter!",
+            "Welcome to our newsletter!",
+        )
+        .await;
 
     Ok(HttpResponse::Ok().finish())
 }
@@ -57,8 +68,8 @@ pub async fn insert_subscriber(
 ) -> Result<(), sqlx::Error> {
     sqlx::query!(
         r#"
-        INSERT INTO subscriptions (id, email, name, subscribed_at)
-        VALUES ($1, $2, $3, $4)
+        INSERT INTO subscriptions (id, email, name, subscribed_at, status)
+        VALUES ($1, $2, $3, $4, 'confirmed')
         "#,
         Uuid::new_v4(),
         new_subscriber.email(),
