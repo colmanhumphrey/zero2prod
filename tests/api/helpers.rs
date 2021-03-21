@@ -1,5 +1,6 @@
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
+use wiremock::MockServer;
 use zero2prod::{configuration, startup, telemetry};
 
 lazy_static::lazy_static! {
@@ -13,6 +14,7 @@ lazy_static::lazy_static! {
 pub struct TestApp {
     pub address: String,
     pub db_pool: PgPool,
+    pub email_server: MockServer,
 }
 
 impl TestApp {
@@ -31,12 +33,17 @@ impl TestApp {
 pub async fn spawn_app() -> TestApp {
     lazy_static::initialize(&TRACING);
 
+    // Stand-in for Postmark's API
+    let email_server = MockServer::start().await;
+
     let configuration = {
         let mut c = configuration::get_configuration().expect("Failed to read configuration.");
         // Use a different db for each test case
         c.database.database_name = Uuid::new_v4().to_string();
         // Use random OS port
         c.application.port = 0;
+        // Mock server as email API
+        c.email_client.base_url = email_server.uri();
         c
     };
 
@@ -54,6 +61,7 @@ pub async fn spawn_app() -> TestApp {
         db_pool: startup::get_connection_pool(&configuration.database)
             .await
             .expect("Failed to connect to the database"),
+        email_server,
     }
 }
 

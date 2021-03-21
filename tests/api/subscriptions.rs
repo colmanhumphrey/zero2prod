@@ -1,3 +1,6 @@
+use wiremock::matchers::{method, path};
+use wiremock::{Mock, ResponseTemplate};
+
 use crate::helpers::spawn_app;
 
 #[actix_rt::test]
@@ -60,4 +63,22 @@ async fn subscribe_returns_a_400_when_fields_are_present_but_invalid() {
             description
         );
     }
+}
+
+#[actix_rt::test]
+async fn subscribe_sends_a_confirmation_email_for_valid_data() {
+    let app = spawn_app().await;
+    let body = "name=colo%20man&email=man@colog.com";
+
+    Mock::given(path("/email"))
+        .and(method("POST"))
+        .respond_with(ResponseTemplate::new(200))
+        .expect(1)
+        .mount(&app.email_server)
+        .await;
+
+    // Act
+    app.post_subscriptions(body.into()).await;
+
+    // Assert on drop
 }
