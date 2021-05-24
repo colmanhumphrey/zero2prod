@@ -77,8 +77,8 @@ pub async fn subscribe(
         &base_url.0,
         &subscription_token,
     )
-        .await
-        .map_err(|_| HttpResponse::InternalServerError().finish())?;
+    .await
+    .map_err(|_| HttpResponse::InternalServerError().finish())?;
 
     Ok(HttpResponse::Ok().finish())
 }
@@ -95,8 +95,7 @@ pub async fn send_confirmation_email(
 ) -> Result<(), reqwest::Error> {
     let confirmation_link = format!(
         "{}/subscriptions/confirm?subscription_token={}",
-        base_url,
-        subscription_token
+        base_url, subscription_token
     );
 
     let plain_body = format!(
@@ -111,15 +110,9 @@ pub async fn send_confirmation_email(
     );
 
     email_client
-        .send_email(
-            new_subscriber.email,
-            "Welcome!",
-            &html_body,
-            &plain_body,
-        )
+        .send_email(new_subscriber.email, "Welcome!", &html_body, &plain_body)
         .await
 }
-
 
 #[tracing::instrument(
     name = "Saving new subscriber details in the database",
@@ -158,7 +151,7 @@ pub async fn insert_subscriber(
 pub async fn store_token(
     transaction: &mut Transaction<'_, Postgres>,
     subscriber_id: Uuid,
-    subscription_token: &str
+    subscription_token: &str,
 ) -> Result<(), sqlx::Error> {
     sqlx::query!(
         r#"

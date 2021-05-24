@@ -4,18 +4,17 @@ use uuid::Uuid;
 use wiremock::MockServer;
 use zero2prod::{configuration, startup, telemetry};
 
-
 static TRACING: Lazy<()> = Lazy::new(|| {
     let default_filter_level = "info".to_string();
     let subscriber_name = "test".to_string();
 
     if std::env::var("TEST_LOG").is_ok() {
-        let subscriber = telemetry::get_subscriber(
-            subscriber_name, default_filter_level, std::io::stdout);
+        let subscriber =
+            telemetry::get_subscriber(subscriber_name, default_filter_level, std::io::stdout);
         telemetry::init_subscriber(subscriber);
     } else {
-        let subscriber = telemetry::get_subscriber(
-            subscriber_name, default_filter_level, std::io::sink);
+        let subscriber =
+            telemetry::get_subscriber(subscriber_name, default_filter_level, std::io::sink);
         telemetry::init_subscriber(subscriber);
     };
 });
@@ -43,13 +42,8 @@ impl TestApp {
             .expect("Failed to execute request")
     }
 
-    pub fn get_confirmation_links(
-        &self,
-        email_request: &wiremock::Request
-    ) -> ConfirmationLinks {
-        let body: serde_json::Value = serde_json::from_slice(
-            &email_request.body
-        ).unwrap();
+    pub fn get_confirmation_links(&self, email_request: &wiremock::Request) -> ConfirmationLinks {
+        let body: serde_json::Value = serde_json::from_slice(&email_request.body).unwrap();
 
         let get_link = |s: &str| {
             let links: Vec<_> = linkify::LinkFinder::new()
@@ -67,10 +61,7 @@ impl TestApp {
         let html = get_link(&body["HtmlBody"].as_str().unwrap());
         let plain_text = get_link(&body["TextBody"].as_str().unwrap());
 
-        ConfirmationLinks {
-            html,
-            plain_text,
-        }
+        ConfirmationLinks { html, plain_text }
     }
 }
 
