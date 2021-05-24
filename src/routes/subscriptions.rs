@@ -5,7 +5,7 @@ use actix_web::{web, HttpResponse};
 use chrono::Utc;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
-use sqlx::{PgPool, Postgres};
+use sqlx::{PgPool, Postgres, Transaction};
 use std::convert::TryInto;
 use uuid::Uuid;
 use web::Form;
@@ -63,6 +63,11 @@ pub async fn subscribe(
         .map_err(|_| HttpResponse::InternalServerError().finish())?;
     let subscription_token = generate_subscription_token();
     store_token(&mut transaction, subscriber_id, &subscription_token)
+        .await
+        .map_err(|_| HttpResponse::InternalServerError().finish())?;
+
+    transaction
+        .commit()
         .await
         .map_err(|_| HttpResponse::InternalServerError().finish())?;
 
