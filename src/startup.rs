@@ -42,7 +42,12 @@ impl Application {
         // } else {
         //   address
         // };
-        let server = run(listener, connection_pool, email_client)?;
+        let server = run(
+            listener,
+            connection_pool,
+            email_client,
+            configuration.application.base_url,
+        )?;
 
         Ok(Self { port, server })
     }
@@ -65,10 +70,13 @@ pub async fn get_connection_pool(
         .await
 }
 
+pub struct ApplicationBaseUrl(pub String);
+
 pub fn run(
     listener: TcpListener,
     db_pool: PgPool,
     email_client: EmailClient,
+    base_url: String,
 ) -> Result<Server, std::io::Error> {
     let db_pool = web::Data::new(db_pool);
     let email_client = web::Data::new(email_client);
@@ -77,8 +85,10 @@ pub fn run(
             .wrap(TracingLogger)
             .route("/health_check", web::get().to(routes::health_check))
             .route("/subscriptions", web::post().to(routes::subscribe))
+            .route("/subscriptions/confirm", web::get().to(routes::confirm))
             .app_data(db_pool.clone())
             .app_data(email_client.clone())
+            .data(ApplicationBaseUrl(base_url.clone()))
     })
     .listen(listener)?
     .run();

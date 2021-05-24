@@ -19,6 +19,14 @@ DATABASE_URL=<insert your DO db connection string> sqlx migrate run
 
 We can run `doctl apps list` to get running apps too.
 
+Then for updating, we run:
+
+``` sh
+doctl apps update <APP-ID (from list)> --spec=spec.yaml
+```
+
+And a new migration if necessary. But note that the app reads from Github!
+
 ## Rust
 
 - Install [cargo-audit](https://github.com/RustSec/cargo-audit), since we check that
