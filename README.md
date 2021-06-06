@@ -30,3 +30,7 @@ And a new migration if necessary. But note that the app reads from Github!
 ## Rust
 
 - Install [cargo-audit](https://github.com/RustSec/cargo-audit), since we check that
+
+## Sqlx
+
+When preparing, run `cargo sqlx prepare -- --bin app`. Still needs [`cargo clean`](https://github.com/launchbadge/sqlx/issues/788) first!
