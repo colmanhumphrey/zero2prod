@@ -50,13 +50,13 @@ pub async fn subscribe(
 ) -> Result<HttpResponse, SubscribeError> {
     let new_subscriber = payload.0.try_into()?;
 
-    let mut transaction = pool.begin().await?;
+    let mut transaction = pool.begin().await.map_err(SubscribeError::PoolError)?;
 
-    let subscriber_id = insert_subscriber(&mut transaction, &new_subscriber).await?;
+    let subscriber_id = insert_subscriber(&mut transaction, &new_subscriber).await.map_err(SubscribeError::InsertSubscriberError)?;
     let subscription_token = generate_subscription_token();
     store_token(&mut transaction, subscriber_id, &subscription_token).await?;
 
-    transaction.commit().await?;
+    transaction.commit().await.map_err(SubscribeError::TransactionCommitError)?;
 
     send_confirmation_email(
         &email_client,
@@ -200,7 +200,9 @@ pub enum SubscribeError {
     ValidationError(String),
     StoreTokenError(StoreTokenError),
     SendEmailError(reqwest::Error),
-    DatabaseError(sqlx::Error),
+    PoolError(sqlx::Error),
+    InsertSubscriberError(sqlx::Error),
+    TransactionCommitError(sqlx::Error),
 }
 
 impl std::fmt::Debug for SubscribeError {
@@ -212,12 +214,6 @@ impl std::fmt::Debug for SubscribeError {
 impl From<reqwest::Error> for SubscribeError {
     fn from(e: reqwest::Error) -> Self {
         Self::SendEmailError(e)
-    }
-}
-
-impl From<sqlx::Error> for SubscribeError {
-    fn from(e: sqlx::Error) -> Self {
-        Self::DatabaseError(e)
     }
 }
 
@@ -245,8 +241,18 @@ impl std::fmt::Display for SubscribeError {
                 f,
                 "Failed to store the confirmation token for a new subscriber"
             ),
-            // not sure yet
-            SubscribeError::DatabaseError(_) =>  write!(f, "???"),
+            SubscribeError::PoolError(_) => write!(
+                f,
+                "Failed to acquire Postgres connection from pool"
+            ),
+            SubscribeError::InsertSubscriberError(_) => write!(
+                f,
+                "Failed to insert new subscriber in the database"
+            ),
+            SubscribeError::TransactionCommitError(_) => write!(
+                f,
+                "Failed to commit SQL transaction to store new sub"
+            ),
         }
     }
 }
@@ -258,7 +264,9 @@ impl std::error::Error for SubscribeError {
             SubscribeError::ValidationError(_) => None,
             SubscribeError::SendEmailError(e) => Some(e),
             SubscribeError::StoreTokenError(e) => Some(e),
-            SubscribeError::DatabaseError(e) => Some(e),
+            SubscribeError::PoolError(e) => Some(e),
+            SubscribeError::InsertSubscriberError(e) => Some(e),
+            SubscribeError::TransactionCommitError(e) => Some(e),
         }
     }
 }
@@ -269,7 +277,9 @@ impl ResponseError for SubscribeError {
             SubscribeError::ValidationError(_) => StatusCode::BAD_REQUEST,
             SubscribeError::SendEmailError(_)
                 | SubscribeError::StoreTokenError(_)
-                | SubscribeError::DatabaseError(_) => StatusCode::INTERNAL_SERVER_ERROR
+                | SubscribeError::PoolError(_)
+                | SubscribeError::InsertSubscriberError(_)
+                | SubscribeError::TransactionCommitError(_) => StatusCode::INTERNAL_SERVER_ERROR
         }
     }
 }
