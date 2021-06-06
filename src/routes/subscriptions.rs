@@ -1,8 +1,8 @@
 use crate::domain::{NewSubscriber, SubscriberEmail, SubscriberName};
 use crate::email_client::EmailClient;
 use crate::startup::ApplicationBaseUrl;
+use actix_web::{http::StatusCode, web, HttpResponse, ResponseError};
 use anyhow::Context;
-use actix_web::{web, HttpResponse, ResponseError, http::StatusCode};
 use chrono::Utc;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
@@ -49,7 +49,10 @@ pub async fn subscribe(
     email_client: web::Data<EmailClient>,
     base_url: web::Data<ApplicationBaseUrl>,
 ) -> Result<HttpResponse, SubscribeError> {
-    let new_subscriber = payload.0.try_into().map_err(SubscribeError::ValidationError)?;
+    let new_subscriber = payload
+        .0
+        .try_into()
+        .map_err(SubscribeError::ValidationError)?;
 
     let mut transaction = pool
         .begin()
@@ -76,8 +79,8 @@ pub async fn subscribe(
         &base_url.0,
         &subscription_token,
     )
-        .await
-        .context("Failed to send a confirmation email")?;
+    .await
+    .context("Failed to send a confirmation email")?;
 
     Ok(HttpResponse::Ok().finish())
 }

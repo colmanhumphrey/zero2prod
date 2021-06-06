@@ -1,5 +1,5 @@
 use crate::routes::error_chain_fmt;
-use actix_web::{web, HttpResponse, ResponseError, http::StatusCode};
+use actix_web::{http::StatusCode, web, HttpResponse, ResponseError};
 use anyhow::Context;
 use sqlx::PgPool;
 use uuid::Uuid;
@@ -9,10 +9,7 @@ pub struct Parameters {
     subscription_token: String,
 }
 
-#[tracing::instrument(
-    name = "Confirming a pending subscriber",
-    skip(pool, parameters)
-)]
+#[tracing::instrument(name = "Confirming a pending subscriber", skip(pool, parameters))]
 pub async fn multi_confirm(
     pool: web::Data<PgPool>,
     parameters: web::Query<Parameters>,
