@@ -33,7 +33,7 @@ pub async fn multi_confirm(
 }
 
 #[tracing::instrument(name = "Mark subscriber as confirmed", skip(pool, subscriber_id))]
-pub async fn confirm_subscriber(pool: &PgPool, subscriber_id: Uuid) -> Result<(), ConfirmSubscriberError> {
+pub async fn confirm_subscriber(pool: &PgPool, subscriber_id: Uuid) -> Result<(), sqlx::Error> {
     sqlx::query!(
         r#"
         UPDATE subscriptions
@@ -43,8 +43,7 @@ pub async fn confirm_subscriber(pool: &PgPool, subscriber_id: Uuid) -> Result<()
         subscriber_id,
     )
     .execute(pool)
-    .await
-    .map_err(ConfirmSubscriberError)?;
+    .await?;
 
     Ok(())
 }
@@ -53,7 +52,7 @@ pub async fn confirm_subscriber(pool: &PgPool, subscriber_id: Uuid) -> Result<()
 pub async fn get_subscriber_id_from_token(
     pool: &PgPool,
     subscription_token: &str,
-) -> Result<Option<Uuid>, GetIdError> {
+) -> Result<Option<Uuid>, sqlx::Error> {
     let result = sqlx::query!(
         r#"
         SELECT subscriber_id
@@ -63,57 +62,9 @@ pub async fn get_subscriber_id_from_token(
         subscription_token,
     )
     .fetch_optional(pool)
-    .await
-    .map_err(GetIdError)?;
+    .await?;
 
     Ok(result.map(|r| r.subscriber_id))
-}
-
-pub struct ConfirmSubscriberError(sqlx::Error);
-pub struct GetIdError(sqlx::Error);
-
-impl std::fmt::Debug for ConfirmSubscriberError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        error_chain_fmt(self, f)
-    }
-}
-impl std::fmt::Debug for GetIdError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        error_chain_fmt(self, f)
-    }
-}
-
-impl std::fmt::Display for ConfirmSubscriberError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "A database error was encountered while \
-             trying to mark subscriber as confirmed"
-        )
-    }
-}
-
-impl std::fmt::Display for GetIdError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "A database error was encountered while \
-             trying get the ID from a token"
-        )
-    }
-}
-
-impl std::error::Error for ConfirmSubscriberError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        // cast &sqlx::Error to &dyn::Error
-        Some(&self.0)
-    }
-}
-impl std::error::Error for GetIdError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        // cast &sqlx::Error to &dyn::Error
-        Some(&self.0)
-    }
 }
 
 #[tracing::instrument(name = "Confirming a pending subscriber", skip(pool, parameters))]
