@@ -640,11 +640,11 @@ checksum = "f7531096570974c3a9dcf9e4b8e1cede1ec26cf5046219fb3b9d897503b9be59"
 
 [[package]]
 name = "fake"
-version = "2.3.0"
+version = "2.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6479fa2c7e83ddf8be7d435421e093b072ca891b99a49bc84eba098f4044f818"
+checksum = "f0fa0564d1bb3f5b84ef6c9308e903bdae81e5f2bcdcd465f5b59fb49184d619"
 dependencies = [
- "rand 0.7.3",
+ "rand 0.8.3",
 ]
 
 [[package]]
