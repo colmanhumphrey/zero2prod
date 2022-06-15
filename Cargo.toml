@@ -44,7 +44,7 @@ features = [ "runtime-actix-rustls", "macros", "postgres", "uuid", "chrono", "mi
 [dev-dependencies]
 actix-rt = "2"
 claim = "0.4.0"
-fake = "~2.3"
+fake = "~2.5"
 lazy_static = "1.4.0"
 linkify = "0.5.0"
 quickcheck = "0.9.2"
